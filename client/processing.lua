@@ -11,6 +11,8 @@ local function ProcessAction(type)
         label = 'Processing (Dry)' 
     elseif type == 'trim' then 
         label = 'Processing (Trim)' 
+    elseif type == 'roll' then 
+        label = 'Rolling Joint' 
     end
 
     RSGCore.Functions.TriggerCallback('rsg-weed:server:canProcess', function(can, msg)
@@ -70,6 +72,9 @@ local function ProcessAction(type)
                  else
                      print('[RSG-WEED] Failed to load tool model: ' .. toolHash)
                  end
+            elseif type == 'roll' then
+                -- Roll Joint: Use writing/crafting animation (hands working)
+                TaskStartScenarioInPlace(PlayerPedId(), GetHashKey('WORLD_HUMAN_WRITE_NOTEBOOK'), -1, true, false, false, false)
             end
             
             if lib.progressBar({
@@ -106,4 +111,29 @@ end
 -- Processing Action Event (triggered from placement.lua targets)
 RegisterNetEvent('rsg-weed:client:processAction', function(type)
     ProcessAction(type)
+end)
+
+-- Roll Joint from Inventory (triggered when using trimmed bud)
+RegisterNetEvent('rsg-weed:client:rollJoint', function(strainKey)
+    local duration = Config.ProcessTime.roll or 5000
+    
+    -- Play rolling animation
+    TaskStartScenarioInPlace(PlayerPedId(), GetHashKey('WORLD_HUMAN_WRITE_NOTEBOOK'), -1, true, false, false, false)
+    
+    if lib.progressBar({
+        duration = duration,
+        position = 'bottom',
+        useWhileDead = false,
+        canCancel = true,
+        disable = {
+            move = true,
+            car = true
+        },
+        label = 'Rolling Joint...'
+    }) then
+        TriggerServerEvent('rsg-weed:server:finishRollJoint', strainKey)
+    end
+    
+    ClearPedTasksImmediately(PlayerPedId())
+    FreezeEntityPosition(PlayerPedId(), false)
 end)

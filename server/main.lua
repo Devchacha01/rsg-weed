@@ -16,6 +16,25 @@ RSGCore.Functions.CreateCallback('rsg-weed:server:canProcess', function(source, 
     local player = RSGCore.Functions.GetPlayer(src)
     local type = data.type
     
+    -- Roll Joint: 1x trimmed + 1x rolling_paper -> 1x joint
+    if type == 'roll' then
+        local hasRollingPaper = player.Functions.GetItemByName('rolling_paper')
+        if not hasRollingPaper then
+            cb(false, "You need Rolling Paper!")
+            return
+        end
+        
+        for _, strain in pairs(Config.Strains) do
+            local item = player.Functions.GetItemByName(strain.items.trimmed)
+            if item and item.amount >= 1 then
+                cb(true)
+                return
+            end
+        end
+        cb(false, "You need trimmed buds to roll!")
+        return
+    end
+    
     for _, strain in pairs(Config.Strains) do
         local requiredItem = nil
         if type == 'wash' then requiredItem = strain.items.leaf
@@ -42,6 +61,21 @@ end)
 RegisterNetEvent('rsg-weed:server:finishProcess', function(type)
     local src = source
     local player = RSGCore.Functions.GetPlayer(src)
+    
+    -- Roll Joint: 1x trimmed + 1x rolling_paper -> 1x joint
+    if type == 'roll' then
+        for _, strain in pairs(Config.Strains) do
+            local item = player.Functions.GetItemByName(strain.items.trimmed)
+            if item and item.amount >= 1 then
+                if player.Functions.RemoveItem(strain.items.trimmed, 1) and player.Functions.RemoveItem('rolling_paper', 1) then
+                    player.Functions.AddItem(strain.items.joint, 1)
+                    TriggerClientEvent('ox_lib:notify', src, { type = 'success', description = 'Rolled 1x ' .. (RSGCore.Shared.Items[strain.items.joint].label or 'Joint') })
+                    return
+                end
+            end
+        end
+        return
+    end
     
     for _, strain in pairs(Config.Strains) do
         local inputItem = nil
@@ -176,7 +210,6 @@ RegisterNetEvent('rsg-weed:server:givePlaceable', function(type)
     end
 end)
 
--- Fill Bucket
 RegisterNetEvent('rsg-weed:server:fillBucket', function()
     local src = source
     local player = RSGCore.Functions.GetPlayer(src)
@@ -186,5 +219,43 @@ RegisterNetEvent('rsg-weed:server:fillBucket', function()
         local info = { uses = Config.BucketUses }
         player.Functions.AddItem(Config.WaterItem, 1, nil, info)
         TriggerClientEvent('rsg-inventory:client:ItemBox', src, RSGCore.Shared.Items[Config.WaterItem], 'add')
+    end
+end)
+
+-- Useable: Trimmed Buds -> Roll Joint (from inventory)
+for strainKey, strain in pairs(Config.Strains) do
+    RSGCore.Functions.CreateUseableItem(strain.items.trimmed, function(source, item)
+        local src = source
+        local player = RSGCore.Functions.GetPlayer(src)
+        if not player then return end
+        
+        local hasRollingPaper = player.Functions.GetItemByName('rolling_paper')
+        if not hasRollingPaper then
+            TriggerClientEvent('ox_lib:notify', src, { type = 'error', description = 'You need Rolling Paper!' })
+            return
+        end
+        
+        -- Trigger client animation, then finish roll
+        TriggerClientEvent('rsg-weed:client:rollJoint', src, strainKey)
+    end)
+end
+
+-- Finish Roll Joint (called from client after animation)
+RegisterNetEvent('rsg-weed:server:finishRollJoint', function(strainKey)
+    local src = source
+    local player = RSGCore.Functions.GetPlayer(src)
+    if not player then return end
+    
+    local strain = Config.Strains[strainKey]
+    if not strain then return end
+    
+    local hasTrimmed = player.Functions.GetItemByName(strain.items.trimmed)
+    local hasRolling = player.Functions.GetItemByName('rolling_paper')
+    
+    if hasTrimmed and hasRolling then
+        if player.Functions.RemoveItem(strain.items.trimmed, 1) and player.Functions.RemoveItem('rolling_paper', 1) then
+            player.Functions.AddItem(strain.items.joint, 1)
+            TriggerClientEvent('ox_lib:notify', src, { type = 'success', description = 'Rolled 1x ' .. (RSGCore.Shared.Items[strain.items.joint].label or 'Joint') })
+        end
     end
 end)

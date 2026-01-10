@@ -38,7 +38,8 @@ Config.ProcessingProps = {
 Config.ProcessTime = {
     wash = 5000,
     dry = 10000,
-    trim = 5000
+    trim = 5000,
+    roll = 5000
 }
 
 

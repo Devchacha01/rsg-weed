@@ -186,6 +186,21 @@ function OpenWeedShop()
     })
 
     table.insert(shopMenu, {
+        title = 'Rolling Paper',
+        description = 'For rolling joints',
+        price = 0.5,
+        image = "img/rolling_paper.png",
+        onSelect = function()
+            SendNUIMessage({
+                action = "openQuantityModal",
+                item = 'rolling_paper',
+                label = 'Rolling Paper',
+                price = 0.5
+            })
+        end
+    })
+
+    table.insert(shopMenu, {
         title = 'Empty Bucket',
         description = 'For collecting water',
         price = 2,
@@ -219,30 +234,30 @@ function OpenWeedShop()
     
     -- Props
     table.insert(shopMenu, {
-        title = 'Wash Barrel',
+        title = 'Wash Bucket',
         description = 'Cleaning',
         price = 50,
-        image = "img/wash_barrel.png", 
+        image = "img/wash_bucket.png", 
         onSelect = function()
             SendNUIMessage({
                 action = "openQuantityModal",
                 item = 'wash_barrel',
-                label = 'Wash Barrel',
+                label = 'Wash Bucket',
                 price = 50
             })
         end
     })
     
     table.insert(shopMenu, {
-        title = 'Process Table',
+        title = 'Processing Rack',
         description = 'Processing',
         price = 50,
-        image = "img/processing_table.png", 
+        image = "img/processing_rack.png", 
         onSelect = function()
             SendNUIMessage({
                 action = "openQuantityModal",
                 item = 'processing_table',
-                label = 'Processing Table',
+                label = 'Processing Rack',
                 price = 50
             })
         end

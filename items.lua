@@ -41,7 +41,7 @@ local Items = {
     },
     ['processing_table'] = {
         ['name'] = 'processing_table',
-        ['label'] = 'Processing Table',
+        ['label'] = 'Processing Rack',
         ['weight'] = 5000,
         ['type'] = 'item',
         ['image'] = 'processing_table.png',
@@ -73,14 +73,17 @@ local Items = {
     ['dried_tex'] = { ['name'] = 'dried_tex', ['label'] = 'Dried New Austin Haze', ['weight'] = 3, ['type'] = 'item', ['image'] = 'dried_tex.png', ['unique'] = false, ['useable'] = false, ['description'] = 'Dried New Austin Haze buds.' },
 
     -- TRIMMED
-    ['trimmed_kalka'] = { ['name'] = 'trimmed_kalka', ['label'] = 'Guarma Gold Bud', ['weight'] = 2, ['type'] = 'item', ['image'] = 'trimmed_kalka.png', ['unique'] = false, ['useable'] = false, ['description'] = 'Processed Guarma Gold weed, ready to roll.' },
-    ['trimmed_purp'] = { ['name'] = 'trimmed_purp', ['label'] = 'Ambarino Frost Bud', ['weight'] = 2, ['type'] = 'item', ['image'] = 'trimmed_purp.png', ['unique'] = false, ['useable'] = false, ['description'] = 'Processed Ambarino Frost weed, ready to roll.' },
-    ['trimmed_tex'] = { ['name'] = 'trimmed_tex', ['label'] = 'New Austin Haze Bud', ['weight'] = 2, ['type'] = 'item', ['image'] = 'trimmed_tex.png', ['unique'] = false, ['useable'] = false, ['description'] = 'Processed New Austin Haze weed, ready to roll.' },
+    ['trimmed_kalka'] = { ['name'] = 'trimmed_kalka', ['label'] = 'Guarma Gold Bud', ['weight'] = 2, ['type'] = 'item', ['image'] = 'trimmed_kalka.png', ['unique'] = false, ['useable'] = true, ['shouldClose'] = true, ['description'] = 'Processed Guarma Gold weed, ready to roll.' },
+    ['trimmed_purp'] = { ['name'] = 'trimmed_purp', ['label'] = 'Ambarino Frost Bud', ['weight'] = 2, ['type'] = 'item', ['image'] = 'trimmed_purp.png', ['unique'] = false, ['useable'] = true, ['shouldClose'] = true, ['description'] = 'Processed Ambarino Frost weed, ready to roll.' },
+    ['trimmed_tex'] = { ['name'] = 'trimmed_tex', ['label'] = 'New Austin Haze Bud', ['weight'] = 2, ['type'] = 'item', ['image'] = 'trimmed_tex.png', ['unique'] = false, ['useable'] = true, ['shouldClose'] = true, ['description'] = 'Processed New Austin Haze weed, ready to roll.' },
 
     -- JOINTS
     ['joint_kalka'] = { ['name'] = 'joint_kalka', ['label'] = 'Guarma Gold Joint', ['weight'] = 1, ['type'] = 'item', ['image'] = 'joint_kalka.png', ['unique'] = false, ['useable'] = true, ['description'] = 'A rolled Guarma Gold joint.' },
     ['joint_purp'] = { ['name'] = 'joint_purp', ['label'] = 'Ambarino Frost Joint', ['weight'] = 1, ['type'] = 'item', ['image'] = 'joint_purp.png', ['unique'] = false, ['useable'] = true, ['description'] = 'A rolled Ambarino Frost joint.' },
     ['joint_tex'] = { ['name'] = 'joint_tex', ['label'] = 'New Austin Haze Joint', ['weight'] = 1, ['type'] = 'item', ['image'] = 'joint_tex.png', ['unique'] = false, ['useable'] = true, ['description'] = 'A rolled New Austin Haze joint.' },
+    
+    -- MISC
+    ['rolling_paper'] = { ['name'] = 'rolling_paper', ['label'] = 'Rolling Paper', ['weight'] = 1, ['type'] = 'item', ['image'] = 'rolling_paper.png', ['unique'] = false, ['useable'] = true, ['description'] = 'Paper for rolling joints.' },
 
     -- BUCKETS
     ['bucket'] = { ['name'] = 'bucket', ['label'] = 'Empty Bucket', ['weight'] = 2000, ['type'] = 'item', ['image'] = 'bucket.png', ['unique'] = false, ['useable'] = false, ['description'] = 'An empty bucket.' },

@@ -62,3 +62,4 @@ A comprehensive weed farming system for RedM (RSG Core), featuring multi-stage g
 
 ## Credits
 - Developed for RSG Core.
+- **Weed Plant Props**: [DerHobbs](https://github.com/DerHobbs/Weed_plant_prop_for_RedM)
