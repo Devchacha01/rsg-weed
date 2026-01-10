@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSG-Weed</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rye&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+    <!-- Shop Menu Interface (Grid Layout) -->
+    <div id="menu-interface" class="interface hidden">
+        <div class="parchment-bg">
+            <div class="header">
+                <h1 id="menu-title">Shop</h1>
+                <div class="separator"></div>
+            </div>
+            <div id="menu-description" class="hidden"></div>
+            <div id="menu-options-list" class="options-list">
+                <!-- Options injected here -->
+            </div>
+            <div class="footer">
+                <span class="key-hint">[Up/Down] Navigate</span>
+                <span class="key-hint">[Enter] Select</span>
+                <span class="key-hint">[Backspace] Close</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quantity Selection Modal -->
+    <div id="quantity-modal" class="interface hidden">
+        <div class="quantity-box">
+            <h2 id="quantity-title">Select Quantity</h2>
+            <div class="quantity-controls">
+                <button class="qty-btn" onclick="changeQty(-1)">-</button>
+                <input type="number" id="qty-input" value="1" min="1" max="99">
+                <button class="qty-btn" onclick="changeQty(1)">+</button>
+            </div>
+            <div class="quantity-price">
+                Total: $<span id="total-price">0</span>
+            </div>
+            <div class="quantity-actions">
+                <button class="action-btn green" onclick="confirmPurchase()">Buy</button>
+                <button class="action-btn red" onclick="closeQuantityModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Plant Menu Interface (Parchment Reskin) -->
+    <div id="plant-menu" class="interface hidden">
+        <div class="parchment-bg" style="width: 500px; height: auto;">
+            <div class="header">
+                <h1 id="plant-title">Plant Status</h1>
+                <div class="separator"></div>
+            </div>
+
+            <div class="plant-header-details" style="text-align: center; margin-bottom: 20px;">
+                <div style="font-size: 24px;">🌿</div>
+                <div id="plant-label" style="font-weight: bold; font-size: 18px; margin-top: 5px;">Unknown Strain</div>
+            </div>
+
+            <!-- Progress Bars -->
+            <div class="progress-section" style="padding: 0 10px;">
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span>💧 Water Level</span>
+                        <span id="water-percent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill water" id="water-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span>🌱 Growth</span>
+                        <span id="growth-percent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill growth" id="growth-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span>❤️ Quality</span>
+                        <span id="quality-percent">100%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill health" id="quality-bar" style="width: 100%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Section -->
+            <div class="info-section"
+                style="display: flex; justify-content: space-between; margin: 20px 10px; padding: 10px; background: rgba(62, 47, 34, 0.05); border-radius: 4px;">
+                <div class="info-item">
+                    <span class="info-icon">⏱️</span>
+                    <span class="info-label">Time:</span>
+                    <span class="info-value" id="time-remaining" style="font-weight: bold;">--:--</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-icon">📊</span>
+                    <span class="info-label">Status:</span>
+                    <span class="info-value" id="plant-status" style="font-weight: bold;">Growing</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="actions-grid"
+                style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                <button class="action-btn water" onclick="doAction('water')" style="width: 100%;">
+                    <span class="icon">💧</span> Water
+                </button>
+                <button class="action-btn fertilize" id="fertilize-btn" onclick="doAction('fertilize')"
+                    style="width: 100%;">
+                    <span class="icon">🌿</span> Fertilize
+                </button>
+                <button class="action-btn harvest disabled" id="harvest-btn" onclick="doAction('harvest')"
+                    style="width: 100%;">
+                    <span class="icon">🌾</span> Harvest
+                </button>
+                <button class="action-btn destroy" onclick="doAction('destroy')" style="width: 100%;">
+                    <span class="icon">🔥</span> Destroy
+                </button>
+            </div>
+
+            <div class="footer" style="margin-top: 20px; text-align: center;">
+                <span class="key-hint" style="cursor: pointer;" onclick="closePlantMenu()">[Backspace] Close</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="hidden">Notification</div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
