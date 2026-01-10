@@ -137,12 +137,45 @@ RegisterNetEvent('rsg-weed:server:buyItem', function(item, price, quantity)
     end
 
     if player.Functions.RemoveMoney('cash', price) then
-        player.Functions.AddItem(item, amount)
+        -- Special handling for matches - add with 20 uses
+        if item == 'matches' then
+            for i = 1, amount do
+                local matchInfo = { uses = 20 }
+                player.Functions.AddItem('matches', 1, nil, matchInfo)
+            end
+        else
+            player.Functions.AddItem(item, amount)
+        end
         TriggerClientEvent('ox_lib:notify', src, { type = 'success', description = 'Bought ' .. amount .. 'x ' .. item })
     else
         TriggerClientEvent('ox_lib:notify', src, { type = 'error', description = 'Not enough money' })
     end
 end)
+
+-- Helper: Consume 1 match use
+local function ConsumeMatch(player, src)
+    if not Config.Smoking.requireMatches then return true end
+    
+    local matchItem = player.Functions.GetItemByName('matches')
+    if not matchItem then return false end
+    
+    local uses = matchItem.info and matchItem.info.uses or 20
+    uses = uses - 1
+    
+    -- Remove old match box
+    player.Functions.RemoveItem('matches', 1, matchItem.slot)
+    
+    if uses > 0 then
+        -- Add back with updated uses
+        local matchInfo = { uses = uses }
+        player.Functions.AddItem('matches', 1, nil, matchInfo)
+        TriggerClientEvent('ox_lib:notify', src, { type = 'info', description = uses .. ' matches remaining' })
+    else
+        TriggerClientEvent('ox_lib:notify', src, { type = 'info', description = 'Match box is empty' })
+    end
+    
+    return true
+end
 
 -- Dynamic Selling Logic
 RegisterNetEvent('rsg-weed:server:sellDynamic', function(typeString)
@@ -259,3 +292,176 @@ RegisterNetEvent('rsg-weed:server:finishRollJoint', function(strainKey)
         end
     end
 end)
+
+-- ============================================================================
+-- SMOKING SYSTEM
+-- ============================================================================
+
+-- Useable: Joints -> Smoke
+for strainKey, strain in pairs(Config.Strains) do
+    RSGCore.Functions.CreateUseableItem(strain.items.joint, function(source, item)
+        local src = source
+        local player = RSGCore.Functions.GetPlayer(src)
+        if not player then return end
+        
+        -- Check for matches if required
+        if Config.Smoking.requireMatches then
+            local hasMatches = RSGCore.Functions.HasItem(src, 'matches', 1)
+            if not hasMatches then
+                TriggerClientEvent('ox_lib:notify', src, { type = 'error', description = 'You need Matches to light!' })
+                return
+            end
+        end
+        
+        -- Trigger client smoking animation
+        TriggerClientEvent('rsg-weed:client:smokeJoint', src, strainKey)
+    end)
+end
+
+-- Finish Smoke Joint (called from client after animation)
+RegisterNetEvent('rsg-weed:server:finishSmokeJoint', function(strainKey)
+    local src = source
+    local player = RSGCore.Functions.GetPlayer(src)
+    if not player then return end
+    
+    local strain = Config.Strains[strainKey]
+    if not strain then return end
+    
+    local hasJoint = player.Functions.GetItemByName(strain.items.joint)
+    if hasJoint then
+        -- Consume 1 match
+        ConsumeMatch(player, src)
+        
+        player.Functions.RemoveItem(strain.items.joint, 1)
+        TriggerClientEvent('rsg-inventory:client:ItemBox', src, RSGCore.Shared.Items[strain.items.joint], 'remove')
+        
+        -- Apply health/stamina boost via client
+        TriggerClientEvent('rsg-weed:client:applySmokingBoost', src, 'joint')
+        
+        TriggerClientEvent('ox_lib:notify', src, { type = 'success', description = 'You smoked a ' .. strain.label .. ' Joint' })
+    end
+end)
+
+-- Useable: Smoking Pipe -> Open Load Menu
+RSGCore.Functions.CreateUseableItem('smoking_pipe', function(source, item)
+    local src = source
+    TriggerClientEvent('rsg-weed:client:openLoadPipeMenu', src)
+end)
+
+-- Check if player can load pipe (has trimmed bud)
+RegisterNetEvent('rsg-weed:server:checkLoadPipe', function(strainKey)
+    local src = source
+    local player = RSGCore.Functions.GetPlayer(src)
+    if not player then return end
+    
+    local strain = Config.Strains[strainKey]
+    if not strain then return end
+    
+    local hasPipe = player.Functions.GetItemByName('smoking_pipe')
+    local hasTrimmed = player.Functions.GetItemByName(strain.items.trimmed)
+    
+    if not hasPipe then
+        TriggerClientEvent('ox_lib:notify', src, { type = 'error', description = 'You need a Smoking Pipe!' })
+        return
+    end
+    
+    if not hasTrimmed then
+        TriggerClientEvent('ox_lib:notify', src, { type = 'error', description = 'You need ' .. strain.label .. ' Bud!' })
+        return
+    end
+    
+    -- Start loading animation
+    TriggerClientEvent('rsg-weed:client:loadPipe', src, strainKey)
+end)
+
+-- Finish loading pipe
+RegisterNetEvent('rsg-weed:server:finishLoadPipe', function(strainKey)
+    local src = source
+    local player = RSGCore.Functions.GetPlayer(src)
+    if not player then return end
+    
+    local strain = Config.Strains[strainKey]
+    if not strain then return end
+    
+    local hasPipe = player.Functions.GetItemByName('smoking_pipe')
+    local hasTrimmed = player.Functions.GetItemByName(strain.items.trimmed)
+    
+    if hasPipe and hasTrimmed then
+        -- Remove empty pipe and trimmed bud
+        player.Functions.RemoveItem('smoking_pipe', 1)
+        player.Functions.RemoveItem(strain.items.trimmed, 1)
+        
+        -- Add loaded pipe with metadata
+        local loadedPipeName = 'loaded_pipe_' .. strainKey
+        local pipeInfo = {
+            puffs = Config.Smoking.pipePuffs,
+            strain = strainKey
+        }
+        player.Functions.AddItem(loadedPipeName, 1, nil, pipeInfo)
+        
+        TriggerClientEvent('ox_lib:notify', src, { type = 'success', description = 'Loaded pipe with ' .. strain.label .. ' (' .. Config.Smoking.pipePuffs .. ' puffs)' })
+    end
+end)
+
+-- Useable: Loaded Pipes -> Smoke
+for strainKey, strain in pairs(Config.Strains) do
+    local loadedPipeName = 'loaded_pipe_' .. strainKey
+    RSGCore.Functions.CreateUseableItem(loadedPipeName, function(source, item)
+        local src = source
+        local player = RSGCore.Functions.GetPlayer(src)
+        if not player then return end
+        
+        -- Check for matches if required
+        if Config.Smoking.requireMatches then
+            local hasMatches = RSGCore.Functions.HasItem(src, 'matches', 1)
+            if not hasMatches then
+                TriggerClientEvent('ox_lib:notify', src, { type = 'error', description = 'You need Matches to light!' })
+                return
+            end
+        end
+        
+        local puffs = item.info and item.info.puffs or Config.Smoking.pipePuffs
+        
+        -- Trigger client smoking animation
+        TriggerClientEvent('rsg-weed:client:smokePipe', src, strainKey, puffs)
+    end)
+end
+
+-- Finish Smoke Pipe (called from client after animation)
+RegisterNetEvent('rsg-weed:server:finishSmokePipe', function(strainKey)
+    local src = source
+    local player = RSGCore.Functions.GetPlayer(src)
+    if not player then return end
+    
+    local strain = Config.Strains[strainKey]
+    if not strain then return end
+    
+    local loadedPipeName = 'loaded_pipe_' .. strainKey
+    local pipeItem = player.Functions.GetItemByName(loadedPipeName)
+    
+    if pipeItem then
+        local puffs = pipeItem.info and pipeItem.info.puffs or Config.Smoking.pipePuffs
+        puffs = puffs - 1
+        
+        -- Remove old pipe
+        player.Functions.RemoveItem(loadedPipeName, 1, pipeItem.slot)
+        
+        if puffs > 0 then
+            -- Add back with updated puffs
+            local pipeInfo = {
+                puffs = puffs,
+                strain = strainKey
+            }
+            player.Functions.AddItem(loadedPipeName, 1, nil, pipeInfo)
+            TriggerClientEvent('ox_lib:notify', src, { type = 'info', description = puffs .. ' puffs remaining' })
+        else
+            -- Pipe is empty, return empty pipe
+            player.Functions.AddItem('smoking_pipe', 1)
+            TriggerClientEvent('ox_lib:notify', src, { type = 'info', description = 'Pipe is empty' })
+        end
+        
+        -- Apply health/stamina boost
+        TriggerClientEvent('rsg-weed:client:applySmokingBoost', src, 'pipe')
+    end
+end)
+

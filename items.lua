@@ -88,5 +88,16 @@ local Items = {
     -- BUCKETS
     ['bucket'] = { ['name'] = 'bucket', ['label'] = 'Empty Bucket', ['weight'] = 2000, ['type'] = 'item', ['image'] = 'bucket.png', ['unique'] = false, ['useable'] = false, ['description'] = 'An empty bucket.' },
     ['fullbucket'] = { ['name'] = 'fullbucket', ['label'] = 'Water Bucket', ['weight'] = 5000, ['type'] = 'item', ['image'] = 'fullbucket.png', ['unique'] = false, ['useable'] = true, ['description'] = 'A bucket full of water.' },
+
+    -- SMOKING PIPE
+    ['smoking_pipe'] = { ['name'] = 'smoking_pipe', ['label'] = 'Smoking Pipe', ['weight'] = 200, ['type'] = 'item', ['image'] = 'smoking_pipe.png', ['unique'] = false, ['useable'] = true, ['shouldClose'] = true, ['description'] = 'A pipe for smoking herbs.' },
+
+    -- LOADED PIPES (with strain)
+    ['loaded_pipe_kalka'] = { ['name'] = 'loaded_pipe_kalka', ['label'] = 'Pipe (Guarma Gold)', ['weight'] = 250, ['type'] = 'item', ['image'] = 'smoking_pipe.png', ['unique'] = true, ['useable'] = true, ['shouldClose'] = true, ['description'] = 'A pipe loaded with Guarma Gold bud.' },
+    ['loaded_pipe_purp'] = { ['name'] = 'loaded_pipe_purp', ['label'] = 'Pipe (Ambarino Frost)', ['weight'] = 250, ['type'] = 'item', ['image'] = 'smoking_pipe.png', ['unique'] = true, ['useable'] = true, ['shouldClose'] = true, ['description'] = 'A pipe loaded with Ambarino Frost bud.' },
+    ['loaded_pipe_tex'] = { ['name'] = 'loaded_pipe_tex', ['label'] = 'Pipe (New Austin Haze)', ['weight'] = 250, ['type'] = 'item', ['image'] = 'smoking_pipe.png', ['unique'] = true, ['useable'] = true, ['shouldClose'] = true, ['description'] = 'A pipe loaded with New Austin Haze bud.' },
+
+    -- MATCHES (20 uses per box)
+    ['matches'] = { ['name'] = 'matches', ['label'] = 'Match Box', ['weight'] = 50, ['type'] = 'item', ['image'] = 'matches.png', ['unique'] = true, ['useable'] = false, ['shouldClose'] = false, ['description'] = 'A box of safety matches. (20 uses)' },
 }
 return Items

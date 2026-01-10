@@ -215,6 +215,36 @@ function OpenWeedShop()
         end
     })
 
+    table.insert(shopMenu, {
+        title = 'Smoking Pipe',
+        description = 'Reusable pipe - load with bud for 10 puffs',
+        price = 25,
+        image = "img/smoking_pipe.png",
+        onSelect = function()
+            SendNUIMessage({
+                action = "openQuantityModal",
+                item = 'smoking_pipe',
+                label = 'Smoking Pipe',
+                price = 25
+            })
+        end
+    })
+
+    table.insert(shopMenu, {
+        title = 'Match Box',
+        description = 'For lighting joints/pipes (20 uses)',
+        price = 2,
+        image = "img/matches.png",
+        onSelect = function()
+            SendNUIMessage({
+                action = "openQuantityModal",
+                item = 'matches',
+                label = 'Match Box',
+                price = 2
+            })
+        end
+    })
+
 
     
     table.insert(shopMenu, {

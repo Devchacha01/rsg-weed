@@ -117,3 +117,31 @@ Config.Selling = {
     maxBuyersPerSession = 10,
     cooldownTime = 300000 -- 5 mins
 }
+
+-- Smoking System
+Config.Smoking = {
+    -- Joint settings
+    jointDuration = 8000, -- Animation duration in ms
+    jointHealthBoost = 10, -- Health restored
+    jointStaminaBoost = 20, -- Stamina restored
+    
+    -- Pipe settings
+    pipePuffs = 10, -- Number of puffs per loaded pipe
+    pipePuffDuration = 3000, -- Animation duration per puff
+    pipeHealthBoost = 5, -- Health per puff
+    pipeStaminaBoost = 10, -- Stamina per puff
+    
+    -- Visual Effects
+    enableHighEffect = true, -- Enable screen blur/drunk effect
+    highDuration = 60000, -- Effect duration in ms (1 minute)
+    highIntensity = 0.3, -- 0.0 to 1.0
+    
+    -- Key bindings (RedM control hashes)
+    dropKey = 0x3B24C470, -- B key - Drop/Stop smoking
+    smokeKey = 0x07B8BEAF, -- E key - Take a puff
+    changeKey = 0xD51B784F, -- X key - Change stance
+    
+    -- Requirements
+    requireMatches = true -- Require matches to light joints/pipes )
+}
+
