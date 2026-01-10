@@ -13,12 +13,13 @@ local function ProcessAction(type)
         label = 'Processing (Trim)' 
     end
 
-    RSGCore.Functions.TriggerCallback('rsg-weed:server:canProcess', function(can)
+    RSGCore.Functions.TriggerCallback('rsg-weed:server:canProcess', function(can, msg)
         if can then
             local weedProp = nil
             local toolProp = nil
-            local weedProps = {} -- Initialize table for multiple props
-             if type ~= 'wash' then
+            local weedProps = {}
+            
+            if type ~= 'wash' then
                  local wpHash = GetHashKey('prop_weed_05') -- Reverted to standard weed prop
                  RequestModel(wpHash)
                  while not HasModelLoaded(wpHash) do Wait(0) end
@@ -83,7 +84,7 @@ local function ProcessAction(type)
                 label = label
             }) then
                 TriggerServerEvent('rsg-weed:server:finishProcess', type)
-                lib.notify({ title = 'Done', description = 'Processing complete!', type = 'success' })
+                -- Server notifies result
             end
             
             ClearPedTasksImmediately(PlayerPedId())
@@ -97,7 +98,7 @@ local function ProcessAction(type)
             end
             if toolProp and DoesEntityExist(toolProp) then DeleteObject(toolProp) end
         else
-            lib.notify({ title = 'Error', description = 'Missing required items!', type = 'error' })
+            lib.notify({ title = 'Error', description = msg or 'Missing required items!', type = 'error' })
         end
     end, { type = type })
 end

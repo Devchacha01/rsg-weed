@@ -15,24 +15,28 @@ RSGCore.Functions.CreateCallback('rsg-weed:server:canProcess', function(source, 
     local src = source
     local player = RSGCore.Functions.GetPlayer(src)
     local type = data.type
-    local hasInput = false
     
     for _, strain in pairs(Config.Strains) do
-        if type == 'wash' then
-            if player.Functions.GetItemByName(strain.items.leaf) then
-                hasInput = true; break
-            end
-        elseif type == 'dry' then
-            if player.Functions.GetItemByName(strain.items.washed) then
-                hasInput = true; break
-            end
-        elseif type == 'trim' then
-            if player.Functions.GetItemByName(strain.items.dried) then
-                hasInput = true; break
+        local requiredItem = nil
+        if type == 'wash' then requiredItem = strain.items.leaf
+        elseif type == 'dry' then requiredItem = strain.items.washed
+        elseif type == 'trim' then requiredItem = strain.items.dried
+        end
+        
+        if requiredItem then
+            local item = player.Functions.GetItemByName(requiredItem)
+            if item then
+                if item.amount >= 50 then
+                    cb(true)
+                    return
+                else
+                    cb(false, "You need 50x " .. (RSGCore.Shared.Items[requiredItem].label or requiredItem))
+                    return
+                end
             end
         end
     end
-    cb(hasInput)
+    cb(false, "You don't have any materials to process (Need 50x)")
 end)
 
 RegisterNetEvent('rsg-weed:server:finishProcess', function(type)
@@ -40,21 +44,38 @@ RegisterNetEvent('rsg-weed:server:finishProcess', function(type)
     local player = RSGCore.Functions.GetPlayer(src)
     
     for _, strain in pairs(Config.Strains) do
-        if type == 'wash' then
-            if player.Functions.RemoveItem(strain.items.leaf, 1) then
-                -- No longer requires water bucket consumption
-                player.Functions.AddItem(strain.items.washed, 1)
-                return
-            end
-        elseif type == 'dry' then
-            if player.Functions.RemoveItem(strain.items.washed, 1) then
-                player.Functions.AddItem(strain.items.dried, 1)
-                return
-            end
-        elseif type == 'trim' then
-            if player.Functions.RemoveItem(strain.items.dried, 1) then
-                player.Functions.AddItem(strain.items.trimmed, 1)
-                return
+        local inputItem = nil
+        local outputItem = nil
+        
+        if type == 'wash' then 
+            inputItem = strain.items.leaf
+            outputItem = strain.items.washed
+        elseif type == 'dry' then 
+            inputItem = strain.items.washed
+            outputItem = strain.items.dried
+        elseif type == 'trim' then 
+            inputItem = strain.items.dried
+            outputItem = strain.items.trimmed
+        end
+        
+        if inputItem and outputItem then
+            local item = player.Functions.GetItemByName(inputItem)
+            if item and item.amount >= 50 then
+                if player.Functions.RemoveItem(inputItem, 50) then
+                    local amount = math.random(46, 49)
+                    player.Functions.AddItem(outputItem, amount)
+                    TriggerClientEvent('ox_lib:notify', src, { type = 'success', description = 'Processed 50x -> ' .. amount .. 'x Result' })
+                    
+                    -- Return wash bucket if washing (Wait, logic says inherent water source now, so no bucket return needed unless used?)
+                    -- Previous logic returned EMPTY bucket. But we removed water usage. 
+                    -- If user wants Empty Bucket back because they filled it?
+                    -- Actually we only removed 'fullbucket' CONSUMPTION.
+                    -- If the player used a valid input, we just proceeded.
+                    -- The previous code lines 44-48:
+                    -- if player.Functions.RemoveItem(strain.items.leaf, 1) then ... end
+                    -- So we just proceed.
+                    return
+                end
             end
         end
     end
