@@ -61,5 +61,4 @@ A comprehensive weed farming system for RedM (RSG Core), featuring multi-stage g
 - `/sellweed`: Start the selling mission (if configured).
 
 ## Credits
-- Developed for RSG Core.
-- **Weed Plant Props**: [DerHobbs](https://github.com/DerHobbs/Weed_plant_prop_for_RedM)
+ **Weed Plant Props**: [DerHobbs](https://github.com/DerHobbs/Weed_plant_prop_for_RedM)
