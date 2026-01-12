@@ -220,12 +220,168 @@ body {
 /* ================================ */
 /* Selling Interaction UI */
 /* ================================ */
+/* ================================ */
+/* Selling Interaction UI (Dark Shady Deal) */
+/* ================================ */
 #selling-interaction {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 200;
+    width: 600px;
+    font-family: 'IM Fell English SC', serif;
+}
+
+.shady-deal-card {
+    position: relative;
+    background: #000000;
+    /* Pitch Black */
+    border: 2px solid #333333;
+    /* Dark Grey Border */
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow:
+        0 0 0 1px #111,
+        /* Inner border */
+        0 0 20px rgba(0, 0, 0, 1);
+    /* Deep shadow */
+    color: #e6e6e6;
+    text-align: center;
+    overflow: hidden;
+    animation: dealPopIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.shady-deal-card::before {
+    /* Removed texture to keep it clean black */
+    display: none;
+}
+
+/* Header Section */
+.deal-header {
+    border-bottom: 2px solid #333;
+    /* Dark Grey */
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+}
+
+.deal-header h1 {
+    font-family: 'Rye', serif;
+    font-size: 32px;
+    color: #ffffff;
+    /* Pure White */
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    text-transform: uppercase;
+    margin: 0;
+    letter-spacing: 2px;
+}
+
+.deal-subtitle {
+    font-size: 16px;
+    font-style: italic;
+    color: #666;
+    /* Medium Grey */
+    margin-top: 5px;
+}
+
+/* Offer Display */
+.deal-offer-container {
+    background: #0a0a0a;
+    /* Almost Black */
+    border: 1px solid #222;
+    padding: 20px;
+    border-radius: 4px;
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.deal-offer-text {
+    font-size: 24px;
+    line-height: 1.4;
+    color: #d7ccc8;
+}
+
+.highlight-item {
+    color: #c4a35a;
+    font-weight: bold;
+    text-decoration: underline decoration-dotted rgba(196, 163, 90, 0.5);
+}
+
+.highlight-price {
+    font-family: 'Rye', serif;
+    color: #4caf50;
+    /* Money Green */
+    font-size: 32px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    display: inline-block;
+    background: rgba(76, 175, 80, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    transform: rotate(-2deg);
+    /* Organic stamp look */
+}
+
+/* Actions */
+.deal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.deal-btn {
+    flex: 1;
+    padding: 12px 20px;
+    font-family: 'Rye', serif;
+    font-size: 16px;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    /* Western angled corners */
+}
+
+.deal-btn.accept {
+    background: linear-gradient(to bottom, #2e7d32, #1b5e20);
+    color: #e8f5e9;
+    border-bottom: 4px solid #0d3b10;
+}
+
+.deal-btn.accept:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+.deal-btn.decline {
+    background: linear-gradient(to bottom, #c62828, #b71c1c);
+    color: #ffebee;
+    border-bottom: 4px solid #7f0000;
+}
+
+.deal-btn.decline:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+.deal-btn:active {
+    transform: translateY(2px);
+    border-bottom-width: 1px;
+}
+
+@keyframes dealPopIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
 /* ================================ */

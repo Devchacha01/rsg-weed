@@ -222,10 +222,6 @@ local function TryToSellToNpc(entity)
         -- Lowball: ~70% Less (30% of value)
         pricePerUnit = math.floor(basePrice * 0.30)
         if pricePerUnit < 1 then pricePerUnit = 1 end
-    if moodRng <= 40 then
-        -- Lowball: ~70% Less (30% of value)
-        pricePerUnit = math.floor(basePrice * 0.30)
-        if pricePerUnit < 1 then pricePerUnit = 1 end
     elseif moodRng >= 91 then
         -- Highball: Bonus (e.g. 50% more)
         pricePerUnit = math.floor(basePrice * 1.50)
@@ -343,7 +339,12 @@ local function IsValidBuyer(entity)
     -- Strict Ped Type Check (Civilians only: 4=Male, 5=Female)
     -- This filters out Cops, Gangs, and Animals
     local pedType = GetPedType(entity)
-    if pedType ~= 4 and pedType ~= 5 then return false end
+    -- Relaxed check: Allow more types but exclude animals/horses (usually 28+)
+    -- if pedType ~= 4 and pedType ~= 5 then return false end -- Too strict
+    
+    -- Ensure it's not a player (already checked) and IS human (already checked)
+    -- Just return true if Human check passed.
+    -- if not IsPedHuman(entity) then return false end -- Already checked above
     
     -- Extra safety against animals
     local model = GetEntityModel(entity)
@@ -362,6 +363,7 @@ local function HasWeed()
 end
 
 -- Third Eye Target
+-- Third Eye Target
 CreateThread(function()
     exports['rsg-target']:AddGlobalPed({
         options = {
@@ -377,7 +379,7 @@ CreateThread(function()
                 end,
             }
         },
-        distance = 2.0,
+        distance = 3.0, -- Increased from 2.0 to ensure ease of use
     })
 end)
 

@@ -99,11 +99,13 @@ RegisterNetEvent('rsg-weed:server:savePlant', function(coords, strain)
 end)
 
 -- Growth Loop
+-- Growth Loop
 CreateThread(function()
     while true do
         Wait(60000)
         MySQL.query('SELECT * FROM rsg_weed_plants', {}, function(plants)
             if plants then
+                local batchUpdates = {}
                 for _, plant in ipairs(plants) do
                     local newGrowth = plant.growth + (100 / Config.GrowthTime)
                     local newWater = plant.water - Config.WaterRate
@@ -123,9 +125,15 @@ CreateThread(function()
                          plant.water = newWater
                          plant.stage = newStage
                          plant.coords = json.decode(plant.coords) -- CRITICAL: Decode coords string to table before sending to client
-                         -- print('^3[RSG-WEED] DEBUG: Plant '..plant.id..' updated. Growth: '..newGrowth..' Stage: '..newStage..'^7')
-                         TriggerClientEvent('rsg-weed:client:updatePlant', -1, plant)
+                         
+                         table.insert(batchUpdates, plant)
                     end
+                end
+                
+                -- Send only ONE event for all updates
+                if #batchUpdates > 0 then
+                    TriggerClientEvent('rsg-weed:client:updatePlantsBatch', -1, batchUpdates)
+                    -- print('^3[RSG-WEED] Synced ' .. #batchUpdates .. ' plants in one batch.^7')
                 end
             end
         end)

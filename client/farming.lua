@@ -347,6 +347,25 @@ RegisterNetEvent('rsg-weed:client:updatePlant', function(plant)
     end
 end)
 
+RegisterNetEvent('rsg-weed:client:updatePlantsBatch', function(plantsList)
+    for _, plant in pairs(plantsList) do
+        PlantsData[plant.id] = plant
+        
+        -- If physically spawned, check if model needs update (stage change)
+        if spawnedPlants[plant.id] then
+            local strainData = Config.Strains[plant.strain]
+            local currentModel = GetEntityModel(spawnedPlants[plant.id].entity)
+            local newModelHash = GetHashKey(strainData.props['stage' .. plant.stage])
+            
+            if currentModel ~= newModelHash then
+                -- Respawn to update model
+                DespawnPlantObject(plant.id)
+                SpawnPlantObject(plant)
+            end
+        end
+    end
+end)
+
 RegisterNetEvent('rsg-weed:client:removePlant', function(plantId)
     PlantsData[plantId] = nil
     DespawnPlantObject(plantId)

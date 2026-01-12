@@ -27,7 +27,7 @@ $(document).ready(function () {
             document.getElementById('plant-menu').classList.remove('hidden');
             updatePlantUI(data.plant);
         } else if (data.action === 'openSelling') {
-            $('#sell-offer-text').html(`I'll give you <span style="color: #2e7d32; font-weight: bold;">$${data.price}</span> for <span style="font-weight: bold;">${data.amount}x ${data.label}</span>.`);
+            $('#sell-offer-text').html(`I'll give you <span class="highlight-price">$${data.price}</span> for <span class="highlight-item">${data.amount}x ${data.label}</span>.`);
             $('#selling-interaction').removeClass('hidden');
         } else if (data.action === 'close') {
             closePlantMenu();
