@@ -177,6 +177,14 @@ RegisterNUICallback('plantAction', function(data, cb)
     local plantId = data.plantId
     
     if action == 'water' then
+        -- Check if plant is already at 100% water
+        local plant = PlantsData[plantId]
+        if plant and plant.water >= 100 then
+            lib.notify({ title = 'Error', description = 'Plant is already fully watered!', type = 'error' })
+            cb({ success = false })
+            return
+        end
+        
         local hasItem = RSGCore.Functions.HasItem(Config.WaterItem)
         if not hasItem then
             lib.notify({ title = 'Error', description = 'You need a full water bucket!', type = 'error' })
@@ -227,6 +235,21 @@ RegisterNUICallback('plantAction', function(data, cb)
         cb({ success = true })
         
     elseif action == 'fertilize' then
+        -- Check if plant is already fertilized or fully grown
+        local plant = PlantsData[plantId]
+        if plant then
+            if plant.fertilized and plant.fertilized >= 1 then
+                lib.notify({ title = 'Error', description = 'Plant is already fertilized!', type = 'error' })
+                cb({ success = false })
+                return
+            end
+            if plant.growth >= 99 then
+                lib.notify({ title = 'Error', description = 'Plant is fully grown, no need to fertilize!', type = 'error' })
+                cb({ success = false })
+                return
+            end
+        end
+        
         SetNuiFocus(false, false)
         SendNUIMessage({ action = 'close' })
 

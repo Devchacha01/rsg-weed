@@ -4,7 +4,7 @@ Config.Debug = false
 Config.Language = 'en'
 
 -- Growth Settings
-Config.GrowthTime = 4 -- Minutes to fully grown (Testing)
+Config.GrowthTime = 25 -- Minutes to fully grown
 Config.WaterRate = 10.0 -- Water loss per minute (100 / 10 = 10 mins per water, 3 times per 30min stage)
 Config.HarvestAmount = { min = 2, max = 5 }
 

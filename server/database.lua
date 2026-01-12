@@ -242,6 +242,12 @@ RSGCore.Functions.CreateCallback('rsg-weed:server:waterPlant', function(source, 
     if hasItem then
         MySQL.query('SELECT * FROM rsg_weed_plants WHERE id = ?', { plantId }, function(result)
             if result and result[1] then
+                -- Check if plant is already at 100% water
+                if result[1].water >= 100 then
+                    cb({ success = false, msg = 'Plant is already fully watered!' })
+                    return
+                end
+                
                 -- Multi-use Logic
                 local uses = hasItem.info and hasItem.info.uses or Config.BucketUses
                 uses = uses - 1
@@ -262,10 +268,8 @@ RSGCore.Functions.CreateCallback('rsg-weed:server:waterPlant', function(source, 
                 
                 local plant = result[1]
                 plant.water = newWater
-                plant.coords = json.decode(plant.coords) -- Decoded for client compatibility if needed
-                -- Ensure growth is passed correctly
+                plant.coords = json.decode(plant.coords)
                 plant.growth = plant.growth or 0.0
-                -- print('^3[RSG-WEED] DEBUG: Watered Plant '..plantId..'. New Water: '..newWater..' Growth: '..plant.growth..'^7')
                 TriggerClientEvent('rsg-weed:client:updatePlant', -1, plant)
                 
                 cb({ success = true, usesLeft = uses })
@@ -283,36 +287,42 @@ RSGCore.Functions.CreateCallback('rsg-weed:server:fertilizePlant', function(sour
     local src = source
     local player = RSGCore.Functions.GetPlayer(src)
     
-    if player.Functions.RemoveItem(Config.FertilizerItem, 1) then
-         MySQL.query('SELECT * FROM rsg_weed_plants WHERE id = ?', { plantId }, function(result)
-            if result and result[1] then
-                if result[1].fertilized == 1 then
-                    cb({ success = false, msg = 'Already fertilized!' })
-                    return
-                end
-                
-                if result[1].growth >= 99 then
-                    player.Functions.AddItem(Config.FertilizerItem, 1)
-                    cb({ success = false, msg = 'Plant is fully grown!' })
-                    return
-                end
-
-                local newGrowth = math.min(100.0, result[1].growth + 10.0)
-                -- Mark as fertilized
-                MySQL.update('UPDATE rsg_weed_plants SET growth = ?, fertilized = 1, updated_at = NOW() WHERE id = ?', { newGrowth, plantId })
-                
-                local plant = result[1]
-                plant.growth = newGrowth
-                plant.fertilized = 1
-                plant.coords = json.decode(plant.coords)
-                TriggerClientEvent('rsg-weed:client:updatePlant', -1, plant)
-                
-                cb({ success = true })
-            else
-                cb({ success = false, msg = 'Plant not found' })
-            end
-        end)
-    else
+    -- Check item FIRST before querying DB
+    local hasItem = player.Functions.GetItemByName(Config.FertilizerItem)
+    if not hasItem then
         cb({ success = false, msg = 'You need fertilizer!' })
+        return
     end
+    
+    MySQL.query('SELECT * FROM rsg_weed_plants WHERE id = ?', { plantId }, function(result)
+        if result and result[1] then
+            -- Check if already fertilized
+            if result[1].fertilized == 1 then
+                cb({ success = false, msg = 'Already fertilized!' })
+                return
+            end
+            
+            -- Check if fully grown
+            if result[1].growth >= 99 then
+                cb({ success = false, msg = 'Plant is fully grown!' })
+                return
+            end
+            
+            -- Now remove the item (after all checks pass)
+            player.Functions.RemoveItem(Config.FertilizerItem, 1)
+
+            local newGrowth = math.min(100.0, result[1].growth + 10.0)
+            MySQL.update('UPDATE rsg_weed_plants SET growth = ?, fertilized = 1, updated_at = NOW() WHERE id = ?', { newGrowth, plantId })
+            
+            local plant = result[1]
+            plant.growth = newGrowth
+            plant.fertilized = 1
+            plant.coords = json.decode(plant.coords)
+            TriggerClientEvent('rsg-weed:client:updatePlant', -1, plant)
+            
+            cb({ success = true })
+        else
+            cb({ success = false, msg = 'Plant not found' })
+        end
+    end)
 end)
