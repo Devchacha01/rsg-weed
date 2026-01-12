@@ -12,17 +12,17 @@ Config.HarvestAmount = { min = 2, max = 5 }
 Config.Strains = {
     kalka = {
         label = 'Guarma Gold',
-        props = { stage1 = 's_inv_milkweed01dx', stage2 = 'prop_weed_02', stage3 = 'prop_weed_01' },
+        props = { stage1 = 's_inv_bloodflower01x', stage2 = 'prop_weed_02', stage3 = 'prop_weed_01' },
         items = { seed = 'seed_kalka', leaf = 'leaf_kalka', washed = 'washed_kalka', dried = 'dried_kalka', trimmed = 'trimmed_kalka', joint = 'joint_kalka' }
     },
     purp = {
         label = 'Ambarino Frost',
-        props = { stage1 = 's_inv_milkweed01dx', stage2 = 'prop_weed_04', stage3 = 'prop_weed_03' },
+        props = { stage1 = 's_inv_bloodflower01x', stage2 = 'prop_weed_04', stage3 = 'prop_weed_03' },
         items = { seed = 'seed_purp', leaf = 'leaf_purp', washed = 'washed_purp', dried = 'dried_purp', trimmed = 'trimmed_purp', joint = 'joint_purp' }
     },
     tex = {
         label = 'New Austin Haze',
-        props = { stage1 = 's_inv_milkweed01dx', stage2 = 'prop_weed_06', stage3 = 'prop_weed_05' },
+        props = { stage1 = 's_inv_bloodflower01x', stage2 = 'prop_weed_06', stage3 = 'prop_weed_05' },
         items = { seed = 'seed_tex', leaf = 'leaf_tex', washed = 'washed_tex', dried = 'dried_tex', trimmed = 'trimmed_tex', joint = 'joint_tex' }
     }
 }
@@ -55,7 +55,7 @@ Config.Pumps = {
     'p_waterpump01x_opt2'
 }
 
--- Water Types (Rivers/Lakes) from rsg-farming
+-- Water Types (Rivers/Lakes) 
 Config.WaterTypes = {
     [1] =  {["name"] = "Sea of Coronado",       ["waterhash"] = -247856387, ["watertype"] = "lake"},
     [2] =  {["name"] = "San Luis River",        ["waterhash"] = -1504425495, ["watertype"] = "river"},
@@ -101,6 +101,7 @@ Config.PlaceableProps = {
 -- Selling System (Dynamic)
 Config.Selling = {
     command = 'sellweed',
+    model = 's_drugpackage_02x', -- Drug package (hash: 1180245127)
     -- Cities where selling is allowed
     allowedCities = {
         {name = "Valentine", coords = vector3(-281.0, 793.0, 118.0), radius = 150.0},
@@ -109,7 +110,6 @@ Config.Selling = {
         {name = "Blackwater", coords = vector3(-813.0, -1324.0, 43.0), radius = 130.0}
     },
     buyerPrices = {
-        ['trimmed'] = {min = 15, max = 20},
         ['joint'] = {min = 25, max = 35}
     },
     purchaseAmounts = {1, 5, 10},
@@ -142,6 +142,21 @@ Config.Smoking = {
     changeKey = 0xD51B784F, -- X key - Change stance
     
     -- Requirements
-    requireMatches = true -- Require matches to light joints/pipes )
+    requireMatches = true -- Require matches to light joints/pipes
+}
+
+-- Law Enforcement Alerts
+Config.PoliceAlerts = {
+    enabled = true,
+    chance = 50, -- % chance to alert police (1-100)
+    cooldown = 600000, -- 10 Minutes cooldown between alerts (to prevent spam)
+    jobs = { 'police', 'sheriff', 'marshal' }, -- Jobs to notify
+    blip = {
+        enabled = true,
+        time = 60000, -- Blip duration on map (ms)
+        radius = 50.0, -- Radius blip size
+        sprite = 'blip_ambient_herding', -- Generic blip usually used for activity
+        color = 'BLIP_MODIFIER_MP_COLOR_8' -- Red
+    }
 }
 

@@ -50,6 +50,42 @@
         </div>
     </div>
 
+    <!-- Selling Interaction UI -->
+    <div id="selling-interaction" class="interface hidden">
+        <div class="parchment-bg" style="width: 500px; height: auto; text-align: center;">
+            <div class="header">
+                <h1>Suspicious Buyer</h1>
+                <div class="separator"></div>
+            </div>
+
+            <div class="selling-content" style="padding: 20px;">
+                <div
+                    style="font-size: 18px; color: #4a0404; margin-bottom: 15px; font-weight: bold; font-family: 'IM Fell English SC', serif;">
+                    "Psst... I see you got the goods."
+                </div>
+
+                <div class="offer-details"
+                    style="background: rgba(62,47,34,0.1); padding: 15px; border-radius: 4px; border: 1px dashed #3e2f22; margin-bottom: 20px;">
+                    <div id="sell-offer-text" style="font-size: 20px; color: #3e2f22; font-family: 'Rye', serif;">
+                        I'll give you <span style="color: #2e7d32; font-weight: bold;">$150</span> for <span
+                            style="font-weight: bold;">5x Blue Dream</span>.
+                    </div>
+                </div>
+
+                <div class="actions-grid">
+                    <button class="action-btn" onclick="acceptOffer()"
+                        style="background: #2e7d32; border-color: #1b5e20;">
+                        <span class="icon">✔️</span> Accept Deal
+                    </button>
+                    <button class="action-btn" onclick="declineOffer()"
+                        style="background: #c62828; border-color: #b71c1c;">
+                        <span class="icon">❌</span> Decline
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Plant Menu Interface (Parchment Reskin) -->
     <div id="plant-menu" class="interface hidden">
         <div class="parchment-bg" style="width: 500px; height: auto;">

@@ -279,15 +279,15 @@ function OpenWeedShop()
     })
     
     table.insert(shopMenu, {
-        title = 'Processing Rack',
-        description = 'Processing',
+        title = 'Drying Rack',
+        description = 'For drying and trimming herbs',
         price = 50,
         image = "img/processing_rack.png", 
         onSelect = function()
             SendNUIMessage({
                 action = "openQuantityModal",
                 item = 'processing_table',
-                label = 'Processing Rack',
+                label = 'Drying Rack',
                 price = 50
             })
         end

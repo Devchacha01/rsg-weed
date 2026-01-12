@@ -73,8 +73,12 @@ local function ProcessAction(type)
                      print('[RSG-WEED] Failed to load tool model: ' .. toolHash)
                  end
             elseif type == 'roll' then
-                -- Roll Joint: Use writing/crafting animation (hands working)
-                TaskStartScenarioInPlace(PlayerPedId(), GetHashKey('WORLD_HUMAN_WRITE_NOTEBOOK'), -1, true, false, false, false)
+                -- Roll Joint: Use generic crafting animation as fallback
+                local animDict = "mech_inventory@crafting@fallback@base"
+                local animName = "base"
+                RequestAnimDict(animDict)
+                while not HasAnimDictLoaded(animDict) do Wait(10) end
+                TaskPlayAnim(PlayerPedId(), animDict, animName, 8.0, -8.0, -1, 1, 0, false, false, false)
             end
             
             if lib.progressBar({
@@ -115,10 +119,25 @@ end)
 
 -- Roll Joint from Inventory (triggered when using trimmed bud)
 RegisterNetEvent('rsg-weed:client:rollJoint', function(strainKey)
+    print('[RSG-WEED] Client received rollJoint event')
     local duration = Config.ProcessTime.roll or 5000
     
-    -- Play rolling animation
-    TaskStartScenarioInPlace(PlayerPedId(), GetHashKey('WORLD_HUMAN_WRITE_NOTEBOOK'), -1, true, false, false, false)
+    -- Play rolling animation (Generic Crafting from rsg-saloon)
+    local animDict = "mech_inventory@crafting@fallbacks"
+    local animName = "full_craft_and_stow"
+    RequestAnimDict(animDict)
+    
+    local timeout = 0
+    while not HasAnimDictLoaded(animDict) and timeout < 100 do 
+        Wait(10) 
+        timeout = timeout + 1
+    end
+    
+    if HasAnimDictLoaded(animDict) then
+        TaskPlayAnim(PlayerPedId(), animDict, animName, 8.0, -8.0, -1, 31, 0, false, false, false)
+    else
+        print('[RSG-WEED] Failed to load animation: ' .. animDict)
+    end
     
     if lib.progressBar({
         duration = duration,
@@ -129,7 +148,8 @@ RegisterNetEvent('rsg-weed:client:rollJoint', function(strainKey)
             move = true,
             car = true
         },
-        label = 'Rolling Joint...'
+        label = 'Rolling Joint...',
+        anim = false
     }) then
         TriggerServerEvent('rsg-weed:server:finishRollJoint', strainKey)
     end

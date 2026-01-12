@@ -57,8 +57,44 @@ A comprehensive weed farming system for RedM (RSG Core), featuring multi-stage g
    - Interact via Third-Eye (Alt).
    - **Note**: You need a batch of **50 items** to start processing.
 
-## Commands
-- `/sellweed`: Start the selling mission (if configured).
+### 🚬 Joint Rolling & Smoking
+- **Roll Joints**: Use `trimmed_[strain]` + `rolling_paper` to craft a Joint.
+- **Smoking System**:
+  - **Joints**: Restores Health & Stamina. Triggers visual effects.
+  - **Pipes**: Load pipes with trimmed buds. 10 Puffs per pipe.
+- **Immersive Animations**: Fully animated rolling and smoking actions (Standing).
+
+### 👮 Police Alerts
+If enabled in `Config.PoliceAlerts`, law enforcement will be notified when:
+*   A player sells weed to an NPC (Chance based).
+*   **Legal Limit**: A player plants more than **20 plants**. This triggers a "Large Illegal Farm" alert.
+
+Configurable options include:
+*   Which jobs get the alert (e.g., `police`, `sheriff`).
+*   Cooldown time between alerts to prevent spam (Default: 10 mins).
+*   Blip duration on the map.
+
+
+### 📈 Dynamic Pricing
+NPCs have different "moods" when buying:
+- **Lowball (40% Chance)**: They offer **70% less** than market value.
+- **Normal (50% Chance)**: Standard market price.
+- **Highball (10% Chance)**: They really want it and pay **50% extra**.
+
+**Editing**: You can adjust these percentages and chances in `client/selling.lua` (look for "Dynamic Pricing" around line 215).
+
+### 💰 Price Configuration
+There are two places to configure how much money you make:
+
+1.  **Base Price (`config.lua`)**:
+    *   Look for `Config.Selling.buyerPrices`.
+    *   Here you set the **Minimum** and **Maximum** base price per joint.
+    *   Example: `['joint'] = {min = 25, max = 35}` means a normal offer is between $25 and $35.
+    *   **Note**: This price applies to **ALL** types of joints (Lemon Haze, Purple Haze, etc.). They all sell for the same potential price range.
+
+2.  **Dynamic Logic (`client/selling.lua`)**:
+    *   This applies the multiplier to the base price you set above.
+    *   If you want to change the "Lowball" from 30% to 50%, or make them happen less often, edit the logic in `client/selling.lua` (around line 215).
 
 ## Credits
  **Weed Plant Props**: [DerHobbs](https://github.com/DerHobbs/Weed_plant_prop_for_RedM)

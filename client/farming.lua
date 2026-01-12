@@ -187,6 +187,10 @@ RegisterNUICallback('plantAction', function(data, cb)
         SetNuiFocus(false, false)
         SendNUIMessage({ action = 'close' })
 
+        -- Start animation BEFORE progress bar
+        local ped = PlayerPedId()
+        TaskStartScenarioInPlace(ped, GetHashKey('WORLD_HUMAN_BUCKET_POUR_LOW'), -1, true, false, false, false)
+
         if lib.progressBar({
             duration = 4000,
             label = 'Watering...',
@@ -199,9 +203,7 @@ RegisterNUICallback('plantAction', function(data, cb)
             },
             anim = false, -- We handle anim manually
         }) then
-            TaskStartScenarioInPlace(PlayerPedId(), GetHashKey('WORLD_HUMAN_BUCKET_POUR_LOW'), -1, true, false, false, false)
-            Wait(4000)
-            ClearPedTasksImmediately(PlayerPedId())
+            ClearPedTasksImmediately(ped)
             
             RSGCore.Functions.TriggerCallback('rsg-weed:server:waterPlant', function(result)
                 if result.success then
@@ -218,6 +220,7 @@ RegisterNUICallback('plantAction', function(data, cb)
                 end
             end, plantId)
         else
+            ClearPedTasksImmediately(ped)
             lib.notify({ title = 'Cancelled', description = 'Watering cancelled', type = 'error' })
         end
         
@@ -226,6 +229,10 @@ RegisterNUICallback('plantAction', function(data, cb)
     elseif action == 'fertilize' then
         SetNuiFocus(false, false)
         SendNUIMessage({ action = 'close' })
+
+        -- Start animation BEFORE progress bar
+        local ped = PlayerPedId()
+        TaskStartScenarioInPlace(ped, GetHashKey('WORLD_HUMAN_FEED_CHICKEN'), -1, true, false, false, false)
 
         if lib.progressBar({
             duration = 4000,
@@ -239,30 +246,27 @@ RegisterNUICallback('plantAction', function(data, cb)
             },
             anim = false,
         }) then
-            -- Pre-anim already handled by callback success? No, do it here.
-            TaskStartScenarioInPlace(PlayerPedId(), GetHashKey('WORLD_HUMAN_FARMER_RAKE'), 4000, true, false, false, false)
-            Wait(4000)
-            ClearPedTasksImmediately(PlayerPedId())
+            ClearPedTasksImmediately(ped)
             
             RSGCore.Functions.TriggerCallback('rsg-weed:server:fertilizePlant', function(result)
                 if result.success then
-                    TaskStartScenarioInPlace(PlayerPedId(), GetHashKey('WORLD_HUMAN_FARMER_RAKE'), 4000, true, false, false, false)
-                    Wait(4000)
-                    ClearPedTasksImmediately(PlayerPedId())
-                    -- cb({ success = true, message = 'Fertilized! (+10% Growth)' }) -- NUI closed anyway
                     lib.notify({ title = 'Success', description = 'Fertilized! (+10% Growth)', type = 'success' })
                 else
                     lib.notify({ title = 'Error', description = result.msg or 'Need Fertilizer!', type = 'error' })
-                    -- cb({ success = false, message = result.msg })
                 end
             end, plantId)
         else
+            ClearPedTasksImmediately(ped)
             lib.notify({ title = 'Cancelled', description = 'Fertilizing cancelled', type = 'error' })
         end
         
     elseif action == 'destroy' then
         SetNuiFocus(false, false)
         SendNUIMessage({ action = 'close' })
+        
+        -- Start animation BEFORE progress bar
+        local ped = PlayerPedId()
+        TaskStartScenarioInPlace(ped, GetHashKey('WORLD_HUMAN_FARMER_WEEDING'), -1, true, false, false, false)
         
         if lib.progressBar({
             duration = 4000,
@@ -276,14 +280,12 @@ RegisterNUICallback('plantAction', function(data, cb)
             },
             anim = false,
         }) then
-             TaskStartScenarioInPlace(PlayerPedId(), GetHashKey('WORLD_HUMAN_FARMER_WEEDING'), -1, true, false, false, false)
-             Wait(4000)
-             ClearPedTasksImmediately(PlayerPedId())
-             
+            ClearPedTasksImmediately(ped)
             TriggerServerEvent('rsg-weed:server:deletePlant', plantId, 'destroy')
             cb({ success = true, message = 'Plant destroyed.' })
         else
-             lib.notify({ title = 'Cancelled', description = 'Action cancelled', type = 'error' })
+            ClearPedTasksImmediately(ped)
+            lib.notify({ title = 'Cancelled', description = 'Action cancelled', type = 'error' })
         end
         
     elseif action == 'harvest' then
@@ -292,6 +294,10 @@ RegisterNUICallback('plantAction', function(data, cb)
         
         local plant = PlantsData[plantId]
         if plant and plant.growth >= 99 then
+            -- Start animation BEFORE progress bar
+            local ped = PlayerPedId()
+            TaskStartScenarioInPlace(ped, GetHashKey('WORLD_HUMAN_FARMER_WEEDING'), -1, true, false, false, false)
+            
             if lib.progressBar({
                 duration = 4000,
                 label = 'Harvesting...',
@@ -302,15 +308,13 @@ RegisterNUICallback('plantAction', function(data, cb)
                     car = true,
                     combat = true,
                 },
-            anim = false,
+                anim = false,
             }) then
-                TaskStartScenarioInPlace(PlayerPedId(), GetHashKey('WORLD_HUMAN_FARMER_WEEDING'), -1, true, false, false, false)
-                Wait(4000)
-                ClearPedTasksImmediately(PlayerPedId())
-                
+                ClearPedTasksImmediately(ped)
                 TriggerServerEvent('rsg-weed:server:deletePlant', plantId, 'harvest')
                 cb({ success = true, message = 'Harvested!' })
             else
+                ClearPedTasksImmediately(ped)
                 lib.notify({ title = 'Cancelled', description = 'Harvesting cancelled', type = 'error' })
             end
         else
@@ -414,6 +418,10 @@ RegisterNetEvent('rsg-weed:client:startPlanting', function(strain)
                     DeleteEntity(ghost)
                     inPlanting = false
                     
+                    -- Start animation BEFORE progress bar
+                    local ped = PlayerPedId()
+                    TaskStartScenarioInPlace(ped, GetHashKey('WORLD_HUMAN_FARMER_WEEDING'), -1, true, false, false, false)
+                    
                     if lib.progressBar({
                         duration = 4000,
                         label = 'Planting Seed...',
@@ -426,13 +434,12 @@ RegisterNetEvent('rsg-weed:client:startPlanting', function(strain)
                         },
                         anim = false,
                     }) then
-                         local coordsToSend = { x = finalCoords.x, y = finalCoords.y, z = finalCoords.z, w = heading }
-                         TriggerServerEvent('rsg-weed:server:savePlant', coordsToSend, strain)
-                         lib.notify({ title = 'Planted', description = 'Seed planted!', type = 'success' })
-                         TaskStartScenarioInPlace(PlayerPedId(), GetHashKey('WORLD_HUMAN_FARMER_WEEDING'), 4000, true, false, false, false)
-                         Wait(4000)
-                         ClearPedTasksImmediately(PlayerPedId())
+                        ClearPedTasksImmediately(ped)
+                        local coordsToSend = { x = finalCoords.x, y = finalCoords.y, z = finalCoords.z, w = heading }
+                        TriggerServerEvent('rsg-weed:server:savePlant', coordsToSend, strain)
+                        lib.notify({ title = 'Planted', description = 'Seed planted!', type = 'success' })
                     else
+                        ClearPedTasksImmediately(ped)
                         lib.notify({ title = 'Cancelled', description = 'Planting cancelled', type = 'error' })
                     end
                     break

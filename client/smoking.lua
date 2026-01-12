@@ -79,6 +79,13 @@ local function ShowPrompts(show)
     proppromptdisplayed = show
 end
 
+local function DisplayPromptGroup()
+    if prompromptdisplayed then
+        local label = CreateVarString(10, 'LITERAL_STRING', 'Smoking')
+        PromptSetActiveGroupThisFrame(SmokingGroup, label, 0, 0, 0, 0)
+    end
+end
+
 -- ============================================================================
 -- ANIMATION HELPERS
 -- ============================================================================
@@ -177,6 +184,12 @@ RegisterNetEvent('rsg-weed:client:smokeJoint', function(strainKey)
           IsEntityPlayingAnim(ped, "amb_rest@world_human_smoking@female_a@base", "base", 3) do
         Wait(5)
         
+        -- Display prompt group on screen
+        if proppromptdisplayed then
+            local label = CreateVarString(10, 'LITERAL_STRING', 'Smoking')
+            PromptSetActiveGroupThisFrame(SmokingGroup, label, 0, 0, 0, 0)
+        end
+        
         -- DROP - finish smoking
         if IsControlJustReleased(0, Config.Smoking.dropKey or 0x3B24C470) then
             ShowPrompts(false)
@@ -196,8 +209,7 @@ RegisterNetEvent('rsg-weed:client:smokeJoint', function(strainKey)
             Wait(1500)
             DeleteEntity(joint)
             
-            -- Consume joint and apply effects
-            TriggerServerEvent('rsg-weed:server:finishSmokeJoint', strainKey)
+            -- Consume joint and apply effects logic moved to cleanup
             if Config.Smoking.enableHighEffect then
                 ApplyHighEffect()
             end
@@ -265,6 +277,10 @@ RegisterNetEvent('rsg-weed:client:smokeJoint', function(strainKey)
         DetachEntity(joint, true, true)
         DeleteEntity(joint)
     end
+    
+    -- Always consume the joint when the smoking session ends
+    TriggerServerEvent('rsg-weed:server:finishSmokeJoint', strainKey)
+    
     CleanupSmoke()
 end)
 
@@ -308,6 +324,12 @@ RegisterNetEvent('rsg-weed:client:smokePipe', function(strainKey, puffsRemaining
     -- Main smoking loop
     while IsEntityPlayingAnim(ped, "amb_rest@world_human_smoking@male_b@base", "base", 3) do
         Wait(5)
+        
+        -- Display prompt group on screen
+        if proppromptdisplayed then
+            local label = CreateVarString(10, 'LITERAL_STRING', 'Pipe Smoking')
+            PromptSetActiveGroupThisFrame(SmokingGroup, label, 0, 0, 0, 0)
+        end
         
         -- DROP - stop smoking and keep pipe
         if IsControlJustReleased(0, Config.Smoking.dropKey or 0x3B24C470) then

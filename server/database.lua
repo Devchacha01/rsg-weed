@@ -16,6 +16,13 @@ CreateThread(function()
         print('^3[RSG-WEED] Added initialized updated_at column to rsg_weed_plants^7')
     end
 
+    -- Check/Add citizenid column (Required for plant limits)
+    local checkOwner = MySQL.scalar.await("SELECT count(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'rsg_weed_plants' AND column_name = 'citizenid'")
+    if checkOwner == 0 then
+        MySQL.query('ALTER TABLE rsg_weed_plants ADD COLUMN citizenid VARCHAR(50) DEFAULT NULL')
+        print('^3[RSG-WEED] Added initialized citizenid column to rsg_weed_plants^7')
+    end
+
     local success, result = pcall(MySQL.query.await, 'SELECT * FROM rsg_weed_plants')
     if success and result then
         for _, plant in ipairs(result) do
@@ -59,9 +66,22 @@ RegisterNetEvent('rsg-weed:server:savePlant', function(coords, strain)
     if player.Functions.RemoveItem(seedItem, 1) then
         -- Sanitize coords to table to ensure JSON compatibility
         local coordsTable = { x = coords.x, y = coords.y, z = coords.z, w = coords.w or 0.0 }
+        local citizenid = player.PlayerData.citizenid
 
-        MySQL.insert('INSERT INTO rsg_weed_plants (coords, strain, water, growth, stage, fertilized, updated_at) VALUES (?, ?, 0, 0, 1, 0, NOW())', { json.encode(coordsTable), strain }, function(id)
+        -- Insert with citizenid
+        MySQL.insert('INSERT INTO rsg_weed_plants (coords, strain, water, growth, stage, fertilized, updated_at, citizenid) VALUES (?, ?, 0, 0, 1, 0, NOW(), ?)', { json.encode(coordsTable), strain, citizenid }, function(id)
             if not id then return print('^1[RSG-WEED] Failed to save plant to DB^7') end
+            
+            -- Check Plant Count for Alert Limit
+            MySQL.scalar('SELECT count(*) FROM rsg_weed_plants WHERE citizenid = ?', { citizenid }, function(count)
+                if count and count > 20 then
+                    local locName = "Unknown Location"
+                    -- Trigger alert (We don't have town name here easily, so we send generic alert or use coords to find nearest town client side if feasible, but simply sending coords works for blip)
+                    -- Triggering event directly on server
+                    TriggerEvent('rsg-weed:server:alertLaw', coordsTable, 'Large Illegal Farm Detected')
+                end
+            end)
+
             local plant = {
                 id = id,
                 strain = strain,
@@ -69,7 +89,8 @@ RegisterNetEvent('rsg-weed:server:savePlant', function(coords, strain)
                 stage = 1,
                 water = 0.0,
                 growth = 0.0,
-                fertilized = 0
+                fertilized = 0,
+                citizenid = citizenid
             }
             TriggerClientEvent('rsg-weed:client:spawnPlant', -1, plant)
             TriggerClientEvent('ox_lib:notify', src, { type = 'success', description = 'Plant saved with ID: ' .. id })

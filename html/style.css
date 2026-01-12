@@ -218,6 +218,17 @@ body {
 }
 
 /* ================================ */
+/* Selling Interaction UI */
+/* ================================ */
+#selling-interaction {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 200;
+}
+
+/* ================================ */
 /* Quantity Modal */
 /* ================================ */
 #quantity-modal {

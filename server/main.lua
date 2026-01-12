@@ -177,38 +177,27 @@ local function ConsumeMatch(player, src)
     return true
 end
 
--- Dynamic Selling Logic
-RegisterNetEvent('rsg-weed:server:sellDynamic', function(typeString)
-    -- typeString = 'trimmed' or 'joint'
+-- Dynamic Selling Logic (Items & Price Passed from Client)
+RegisterNetEvent('rsg-weed:server:sellDynamicItem', function(itemName, amount, price)
     local src = source
     local player = RSGCore.Functions.GetPlayer(src)
+    if not player then return end
     
-    local sold = false
-    local total = 0
-    
-    -- Check all strains for this type
-    for _, strain in pairs(Config.Strains) do
-        local itemName = strain.items[typeString] -- e.g. trimmed_kalka
-        if itemName then
-            local invItem = player.Functions.GetItemByName(itemName)
-            if invItem and invItem.amount > 0 then
-                -- Sell ALL of this type
-                local count = invItem.amount
-                local price = math.random(Config.Selling.buyerPrices[typeString].min, Config.Selling.buyerPrices[typeString].max) * count
-                
-                if player.Functions.RemoveItem(itemName, count) then
-                    player.Functions.AddMoney('cash', price)
-                    total = total + price
-                    sold = true
-                end
+    -- Verify player actually has the item and amount
+    local item = player.Functions.GetItemByName(itemName)
+    if item and item.amount >= amount then
+        if player.Functions.RemoveItem(itemName, amount) then
+            player.Functions.AddMoney('cash', price)
+            TriggerClientEvent('ox_lib:notify', src, { type = 'success', description = 'Handed over ' .. amount .. 'x ' .. RSGCore.Shared.Items[itemName].label .. '. Received $' .. price })
+            
+            -- Alert Police (Chance)
+            if math.random(100) < 10 then
+                 -- TriggerClientEvent('police:client:policeAlert', -1, GetEntityCoords(GetPlayerPed(src)), 'Drug Sale')
+                 -- Keeping this commented out until police script is confirmed
             end
         end
-    end
-    
-    if sold then
-        TriggerClientEvent('ox_lib:notify', src, { type = 'success', description = 'Sold weed for $' .. total })
     else
-        TriggerClientEvent('ox_lib:notify', src, { type = 'error', description = 'You have nothing to sell!' })
+        TriggerClientEvent('ox_lib:notify', src, { type = 'error', description = 'Transaction failed. Item missing?' })
     end
 end)
 
@@ -258,17 +247,20 @@ end)
 -- Useable: Trimmed Buds -> Roll Joint (from inventory)
 for strainKey, strain in pairs(Config.Strains) do
     RSGCore.Functions.CreateUseableItem(strain.items.trimmed, function(source, item)
+        print('[RSG-WEED] Used Trimmed Bud: ' .. strain.items.trimmed)
         local src = source
         local player = RSGCore.Functions.GetPlayer(src)
         if not player then return end
         
         local hasRollingPaper = player.Functions.GetItemByName('rolling_paper')
         if not hasRollingPaper then
+            print('[RSG-WEED] No rolling paper found')
             TriggerClientEvent('ox_lib:notify', src, { type = 'error', description = 'You need Rolling Paper!' })
             return
         end
         
         -- Trigger client animation, then finish roll
+        print('[RSG-WEED] Triggering client rollJoint for strain: ' .. strainKey)
         TriggerClientEvent('rsg-weed:client:rollJoint', src, strainKey)
     end)
 end
@@ -341,6 +333,8 @@ RegisterNetEvent('rsg-weed:server:finishSmokeJoint', function(strainKey)
         TriggerClientEvent('ox_lib:notify', src, { type = 'success', description = 'You smoked a ' .. strain.label .. ' Joint' })
     end
 end)
+
+
 
 -- Useable: Smoking Pipe -> Open Load Menu
 RSGCore.Functions.CreateUseableItem('smoking_pipe', function(source, item)
@@ -465,3 +459,43 @@ RegisterNetEvent('rsg-weed:server:finishSmokePipe', function(strainKey)
     end
 end)
 
+-- Law Enforcement Alerts
+RegisterNetEvent('rsg-weed:server:alertLaw', function(coords, locationName)
+    local src = source
+    local player = RSGCore.Functions.GetPlayer(src)
+    if not player then return end
+
+    if not Config.PoliceAlerts.enabled then return end
+
+    local players = RSGCore.Functions.GetPlayers()
+    for _, playerId in ipairs(players) do
+        local cop = RSGCore.Functions.GetPlayer(playerId)
+        if cop then
+            local job = cop.PlayerData.job.name
+            for _, alertJob in ipairs(Config.PoliceAlerts.jobs) do
+                if job == alertJob and cop.PlayerData.job.onduty then
+                    -- Notify Officer
+                    local title = 'Drug Sale Reported'
+                    local description = 'A suspicious individual was seen selling drugs in ' .. locationName
+                    
+                    if locationName == 'Large Illegal Farm Detected' then
+                        title = 'Illegal Cultivation Reported'
+                        description = 'Reports of a large illegal farm operation in the area!'
+                    end
+                    
+                    TriggerClientEvent('ox_lib:notify', playerId, {
+                        title = title,
+                        description = description,
+                        type = 'police',
+                        duration = 10000
+                    })
+                    
+                    -- Create Blip for Officer (Client Side handling needed or create global blip? Better to send simple blip trigger)
+                     if Config.PoliceAlerts.blip.enabled then
+                        TriggerClientEvent('rsg-weed:client:policeBlip', playerId, coords)
+                    end
+                end
+            end
+        end
+    end
+end)

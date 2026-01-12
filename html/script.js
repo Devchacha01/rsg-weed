@@ -26,8 +26,12 @@ $(document).ready(function () {
             currentPlantId = data.plant.id;
             document.getElementById('plant-menu').classList.remove('hidden');
             updatePlantUI(data.plant);
+        } else if (data.action === 'openSelling') {
+            $('#sell-offer-text').html(`I'll give you <span style="color: #2e7d32; font-weight: bold;">$${data.price}</span> for <span style="font-weight: bold;">${data.amount}x ${data.label}</span>.`);
+            $('#selling-interaction').removeClass('hidden');
         } else if (data.action === 'close') {
             closePlantMenu();
+            $('#selling-interaction').addClass('hidden');
         }
     });
 
@@ -288,4 +292,14 @@ function showToast(msg) {
             t.classList.add('hidden');
         }, 3000);
     }
+}
+
+function acceptOffer() {
+    $('#selling-interaction').addClass('hidden');
+    $.post(`https://${RESOURCE_NAME}/sell_accept`, JSON.stringify({}));
+}
+
+function declineOffer() {
+    $('#selling-interaction').addClass('hidden');
+    $.post(`https://${RESOURCE_NAME}/sell_decline`, JSON.stringify({}));
 }

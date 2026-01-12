@@ -41,7 +41,7 @@ local Items = {
     },
     ['processing_table'] = {
         ['name'] = 'processing_table',
-        ['label'] = 'Processing Rack',
+        ['label'] = 'Drying Rack',
         ['weight'] = 5000,
         ['type'] = 'item',
         ['image'] = 'processing_table.png',
@@ -49,7 +49,7 @@ local Items = {
         ['useable'] = true,
         ['shouldClose'] = true,
         ['combinable'] = nil,
-        ['description'] = 'A table for drying and trimming.'
+        ['description'] = 'A rack for drying and trimming herbs.'
     },
 
     -- SEEDS
