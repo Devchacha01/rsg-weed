@@ -264,13 +264,24 @@ RegisterNUICallback('plantAction', function(data, cb)
         SetNuiFocus(false, false)
         SendNUIMessage({ action = 'close' })
         
-        -- Start animation BEFORE progress bar
         local ped = PlayerPedId()
-        TaskStartScenarioInPlace(ped, GetHashKey('WORLD_HUMAN_FARMER_WEEDING'), -1, true, false, false, false)
+        local plant = PlantsData[plantId]
+        
+        if not plant then
+            lib.notify({ title = 'Error', description = 'Plant not found', type = 'error' })
+            cb({ success = false })
+            return
+        end
+        
+        -- Get plant coords for fire effect
+        local plantCoords = vector3(plant.coords.x, plant.coords.y, plant.coords.z)
+        
+        -- Start animation
+        TaskStartScenarioInPlace(ped, GetHashKey('WORLD_HUMAN_CROUCH_INSPECT'), -1, true, false, false, false)
         
         if lib.progressBar({
-            duration = 4000,
-            label = 'Destroying Plant...',
+            duration = 3000,
+            label = 'Setting Fire...',
             useWhileDead = false,
             canCancel = true,
             disable = {
@@ -281,7 +292,19 @@ RegisterNUICallback('plantAction', function(data, cb)
             anim = false,
         }) then
             ClearPedTasksImmediately(ped)
+            
+            -- Create actual fire at plant location using native
+            local fire = StartScriptFire(plantCoords.x, plantCoords.y, plantCoords.z, 10, false, false, false, 16)
+            
+            -- Let fire burn for 3 seconds
+            Wait(3000)
+            
+            -- Remove fire
+            RemoveScriptFire(fire)
+            
+            -- Now delete the plant
             TriggerServerEvent('rsg-weed:server:deletePlant', plantId, 'destroy')
+            lib.notify({ title = 'Destroyed', description = 'Plant burned to ashes!', type = 'success' })
             cb({ success = true, message = 'Plant destroyed.' })
         else
             ClearPedTasksImmediately(ped)

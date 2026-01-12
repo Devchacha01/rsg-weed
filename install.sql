@@ -10,8 +10,10 @@ CREATE TABLE IF NOT EXISTS `rsg_weed_plants` (
     `water` float NOT NULL DEFAULT 100.0,
     `growth` float NOT NULL DEFAULT 0.0,
     `quality` float NOT NULL DEFAULT 100.0,
+    `fertilized` tinyint(1) NOT NULL DEFAULT 0,
     `citizenid` varchar(50) DEFAULT NULL,
     `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

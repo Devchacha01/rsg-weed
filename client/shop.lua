@@ -307,10 +307,28 @@ local function DeleteNPC()
     end
 end
 
+-- NPC Management Loop
 CreateThread(function()
     SetupBlip()
-    Wait(1000)
-    SpawnNPC()
+    
+    while true do
+        local playerPed = PlayerPedId()
+        local playerCoords = GetEntityCoords(playerPed)
+        local shopCoords = vector3(Config.SeedVendor.coords.x, Config.SeedVendor.coords.y, Config.SeedVendor.coords.z)
+        local dist = #(playerCoords - shopCoords)
+        
+        if dist < 50.0 then
+            if not npcSpawned then
+                SpawnNPC()
+            end
+        else
+            if npcSpawned then
+                DeleteNPC()
+            end
+        end
+        
+        Wait(2000) -- Check distance every 2 seconds
+    end
 end)
 
 AddEventHandler('onResourceStop', function(resourceName)

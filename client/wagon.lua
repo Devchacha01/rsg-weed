@@ -29,10 +29,20 @@ RegisterNetEvent('rsg-weed:client:spawnWagon', function()
     
     if HasModelLoaded(model) then
         -- Spawn at specific location near shop
-        local spawnCoords = vector4(1426.9, 252.6, 90.8, 88.0) -- 88.0 heading aligned with building
+        local spawnCoords = vector4(1426.9, 252.6, 90.8, 180.0) -- Heading adjusted
         
         local vehicle = CreateVehicle(model, spawnCoords.x, spawnCoords.y, spawnCoords.z, spawnCoords.w, true, false)
+        
+        -- Wait a moment for physics to settle
+        Wait(500)
         SetVehicleOnGroundProperly(vehicle)
+        Wait(200)
+        
+        -- Freeze vehicle briefly to stabilize
+        FreezeEntityPosition(vehicle, true)
+        Wait(100)
+        FreezeEntityPosition(vehicle, false)
+        
         SetModelAsNoLongerNeeded(model)
         
         -- Set State

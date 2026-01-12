@@ -79,7 +79,7 @@
     <div id="plant-menu" class="interface hidden">
         <div class="parchment-bg" style="width: 500px; height: auto;">
             <div class="header">
-                <h1 id="plant-title">Plant Status</h1>
+                <h1 id="plant-title">Cultivation</h1>
                 <div class="separator"></div>
             </div>
 
@@ -139,7 +139,7 @@
             <!-- Action Buttons -->
             <div class="actions-grid"
                 style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-                <button class="action-btn water" onclick="doAction('water')" style="width: 100%;">
+                <button class="action-btn water" id="water-btn" onclick="doAction('water')" style="width: 100%;">
                     <span class="icon">💧</span> Water
                 </button>
                 <button class="action-btn fertilize" id="fertilize-btn" onclick="doAction('fertilize')"

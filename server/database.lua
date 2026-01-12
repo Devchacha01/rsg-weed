@@ -93,7 +93,7 @@ RegisterNetEvent('rsg-weed:server:savePlant', function(coords, strain)
                 citizenid = citizenid
             }
             TriggerClientEvent('rsg-weed:client:spawnPlant', -1, plant)
-            TriggerClientEvent('ox_lib:notify', src, { type = 'success', description = 'Plant saved with ID: ' .. id })
+            -- Debug notification removed
         end)
     end
 end)
@@ -107,26 +107,46 @@ CreateThread(function()
             if plants then
                 local batchUpdates = {}
                 for _, plant in ipairs(plants) do
-                    local newGrowth = plant.growth + (100 / Config.GrowthTime)
                     local newWater = plant.water - Config.WaterRate
-                    
                     if newWater < 0 then newWater = 0 end
-                    if newGrowth > 100 then newGrowth = 100 end
-
-                    local newStage = 1
-                    if newGrowth >= 33.0 then newStage = 2 end
-                    if newGrowth >= 66.0 then newStage = 3 end
-                    -- 3 Stages: Seedling (Milkweed) -> Small -> Large
                     
-                    if newStage ~= plant.stage or math.floor(newGrowth) ~= math.floor(plant.growth) or math.floor(newWater) ~= math.floor(plant.water) then
-                         MySQL.update('UPDATE rsg_weed_plants SET growth = ?, water = ?, stage = ?, updated_at = NOW() WHERE id = ?', { newGrowth, newWater, newStage, plant.id })
-                         
-                         plant.growth = newGrowth
-                         plant.water = newWater
-                         plant.stage = newStage
-                         plant.coords = json.decode(plant.coords) -- CRITICAL: Decode coords string to table before sending to client
-                         
-                         table.insert(batchUpdates, plant)
+                    -- Plants only grow if they have water!
+                    local newGrowth = plant.growth
+                    local newQuality = plant.quality or 100
+                    
+                    if plant.water > 0 then
+                        -- Has water = plant grows
+                        newGrowth = plant.growth + (100 / Config.GrowthTime)
+                    else
+                        -- No water = plant quality drops
+                        newQuality = newQuality - 1
+                        if newQuality < 0 then newQuality = 0 end
+                    end
+                    
+                    -- If quality reaches 0, plant dies and is deleted
+                    if newQuality <= 0 then
+                        MySQL.update('DELETE FROM rsg_weed_plants WHERE id = ?', { plant.id })
+                        TriggerClientEvent('rsg-weed:client:removePlant', -1, plant.id)
+                        print('^1[RSG-WEED] Plant ' .. plant.id .. ' died from neglect and was removed.^7')
+                    else
+                        if newGrowth > 100 then newGrowth = 100 end
+
+                        local newStage = 1
+                        if newGrowth >= 33.0 then newStage = 2 end
+                        if newGrowth >= 66.0 then newStage = 3 end
+                        -- 3 Stages: Seedling (Milkweed) -> Small -> Large
+                        
+                        if newStage ~= plant.stage or math.floor(newGrowth) ~= math.floor(plant.growth) or math.floor(newWater) ~= math.floor(plant.water) or newQuality ~= (plant.quality or 100) then
+                             MySQL.update('UPDATE rsg_weed_plants SET growth = ?, water = ?, stage = ?, quality = ?, updated_at = NOW() WHERE id = ?', { newGrowth, newWater, newStage, newQuality, plant.id })
+                             
+                             plant.growth = newGrowth
+                             plant.water = newWater
+                             plant.stage = newStage
+                             plant.quality = newQuality
+                             plant.coords = json.decode(plant.coords) -- CRITICAL: Decode coords string to table before sending to client
+                             
+                             table.insert(batchUpdates, plant)
+                        end
                     end
                 end
                 

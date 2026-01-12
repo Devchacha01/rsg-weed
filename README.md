@@ -1,5 +1,8 @@
 # RSG Weed - Advanced Farming System
 
+![RSG Weed Farming System](weed_banner.jpg)
+
+
 A comprehensive weed farming system for RedM (RSG Core), featuring multi-stage growth, water management, batch processing, and a unique water wagon rental system.
 
 ## Features

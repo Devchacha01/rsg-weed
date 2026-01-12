@@ -252,6 +252,16 @@ function updatePlantUI(plant) {
         }
     }
 
+    // Water button state - disable when water is at 100%
+    const waterBtn = document.getElementById('water-btn');
+    if (waterBtn) {
+        if (water >= 100) {
+            waterBtn.classList.add('disabled');
+        } else {
+            waterBtn.classList.remove('disabled');
+        }
+    }
+
     // Harvest button availability
     const harvestBtn = document.getElementById('harvest-btn');
     if (growth >= 100) {
