@@ -41,7 +41,7 @@
 ['rolling_paper'] = { ['name'] = 'rolling_paper', ['label'] = 'Rolling Paper', ['weight'] = 1, ['type'] = 'item', ['image'] = 'rolling_paper.png', ['unique'] = false, ['useable'] = true, ['description'] = 'Paper for rolling joints.' },
 
 -- BUCKETS
-['bucket'] = { ['name'] = 'bucket', ['label'] = 'Empty Bucket', ['weight'] = 2000, ['type'] = 'item', ['image'] = 'bucket.png', ['unique'] = false, ['useable'] = false, ['description'] = 'An empty bucket.' },
+['emptybucket'] = { ['name'] = 'emptybucket', ['label'] = 'Empty Bucket', ['weight'] = 100, ['type'] = 'item', ['image'] = 'bucket.png', ['unique'] = false, ['useable'] = false, ['description'] = 'An empty bucket.' },
 ['fullbucket'] = { ['name'] = 'fullbucket', ['label'] = 'Water Bucket', ['weight'] = 5000, ['type'] = 'item', ['image'] = 'fullbucket.png', ['unique'] = false, ['useable'] = true, ['description'] = 'A bucket full of water.' },
 
 -- SMOKING PIPE

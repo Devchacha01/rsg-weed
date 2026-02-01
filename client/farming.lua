@@ -570,21 +570,17 @@ CreateThread(function()
         if LocalPlayer.state.isLoggedIn then
             local ped = PlayerPedId()
             if IsEntityInWater(ped) then
-                sleep = 0
-                local coords = GetEntityCoords(ped)
-                
                 if not IsPedInAnyVehicle(ped, true) then
-                    DrawText3D(coords.x, coords.y, coords.z + 1.0, "[ALT] Fill Bucket")
-                    
-                    if IsControlJustPressed(0, 0x8AAA0AD4) then -- LEFT ALT key
-                        local hasBucket = RSGCore.Functions.HasItem(Config.EmptyBucketItem)
-                        if hasBucket then
+                    if RSGCore.Functions.HasItem(Config.EmptyBucketItem) then
+                        sleep = 0
+                        local coords = GetEntityCoords(ped)
+                        DrawText3D(coords.x, coords.y, coords.z + 1.0, "[ALT] Fill Bucket")
+                        
+                        if IsControlJustPressed(0, 0x8AAA0AD4) then -- LEFT ALT key
                             TaskStartScenarioInPlace(ped, GetHashKey('WORLD_HUMAN_BUCKET_POUR_LOW'), -1, true, false, false, false)
                             Wait(4000)
                             ClearPedTasksImmediately(ped)
                             TriggerServerEvent('rsg-weed:server:fillBucket')
-                        else
-                            lib.notify({ title = 'Error', description = 'You need an empty bucket!', type = 'error' })
                         end
                     end
                 end

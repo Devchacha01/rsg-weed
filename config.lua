@@ -46,7 +46,7 @@ Config.ProcessTime = {
 -- Tools
 Config.ShovelItem = 'shovel'
 Config.WaterItem = 'fullbucket' -- Reusable bucket
-Config.EmptyBucketItem = 'bucket' -- Returns this after use
+Config.EmptyBucketItem = 'emptybucket' -- Returns this after use
 Config.BucketUses = 10 -- Number of uses per bucket
 Config.FertilizerItem = 'fertilizer' -- Adds growth speed or instant growth
 
