@@ -89,7 +89,6 @@ Config.WaterTypes = {
 Config.SeedVendor = {
     model = 'u_m_m_valgenstoreowner_01', -- Same model as Moonshiner (proven to work)
     coords = vector4(1443.7, 263.3, 90.6, 180.0), -- User specified location (Rotated 180)
-    blip = { label = 'Gardening Supplies', sprite = 'blip_shop_shady', scale = 0.8 }
 }
 
 -- Processing Props (Placeable items)

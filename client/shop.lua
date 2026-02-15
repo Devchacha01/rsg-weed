@@ -5,7 +5,6 @@
 
 local RSGCore = exports['rsg-core']:GetCoreObject()
 local npcPed = nil
-local npcBlip = nil
 local npcSpawned = false
 
 -- NUI State
@@ -81,16 +80,7 @@ RegisterNUICallback('buyItem', function(data, cb)
     cb('ok')
 end)
 
--- Setup Blip
-local function SetupBlip()
-    local cfg = Config.SeedVendor
-    local blipCoords = cfg.coords
-    
-    npcBlip = BlipAddForCoords(1664425300, blipCoords.x, blipCoords.y, blipCoords.z)
-    SetBlipSprite(npcBlip, joaat(cfg.blip.sprite), true)
-    SetBlipScale(npcBlip, cfg.blip.scale or 0.8)
-    SetBlipName(npcBlip, cfg.blip.label)
-end
+
 
 -- Spawn NPC
 local function SpawnNPC()
@@ -309,8 +299,6 @@ end
 
 -- NPC Management Loop
 CreateThread(function()
-    SetupBlip()
-    
     while true do
         local playerPed = PlayerPedId()
         local playerCoords = GetEntityCoords(playerPed)
@@ -334,6 +322,5 @@ end)
 AddEventHandler('onResourceStop', function(resourceName)
     if GetCurrentResourceName() == resourceName then
         DeleteNPC()
-        if npcBlip then RemoveBlip(npcBlip) end
     end
 end)
